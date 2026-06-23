@@ -457,13 +457,25 @@ function renderQuestion(reshuffle=true){
 
 function choose(i){
   answers[idx] = displayOpts[i];   // 選んだ選択肢オブジェクトを保存（並び順に依存しない）
-  // 選択したら少し間をおいて次へ（最後の問題なら結果へ）
+  // 選択のハイライトは innerHTML を作り直さず、その場でクラスを付け替える
+  // （作り直すと .fade が再生されて画面がフラッシュするため）
+  const btns = view.querySelectorAll('.opt');
+  btns.forEach((b,bi)=>{
+    if(bi===i){
+      b.classList.add('sel');
+      const dot = b.querySelector('.dot');
+      if(dot && !dot.innerHTML.trim()) dot.innerHTML = I.check;
+    } else {
+      b.classList.remove('sel');
+      const dot = b.querySelector('.dot');
+      if(dot) dot.innerHTML = '';
+    }
+  });
+  // 少し間をおいて次の問題へ（最後の問題なら結果へ）。ここで初めて画面を切り替える。
   setTimeout(()=>{
     if(idx < QUESTIONS.length-1){ idx++; renderQuestion(true); }   // 次の問題は新たにシャッフル
     else { renderResult(); }
   }, 230);
-  // 視覚的な選択反映（並びは保ったまま）
-  renderQuestion(false);
 }
 function prev(){ if(idx>0){ idx--; renderQuestion(true); } }   // 前の問題に戻るときも並びをシャッフル
 
